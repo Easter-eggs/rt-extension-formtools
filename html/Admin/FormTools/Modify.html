@@ -151,11 +151,11 @@
 % }
         <hr />
 % foreach my $item ( @custom_fields ) {
-        <div id="formtools-element-<% CSSClass($item) %>" class="formtools-element" draggable="true" ondragstart="formTools.dragstart(event);" ondragend="formTools.dragend(event);" data-value="<% JSON({ type => 'component', comp_name => 'Field', arguments => { name => $item } }) %>">
+        <div id="formtools-element-<% CSSClass($item->{Name}) %>" class="formtools-element" draggable="true" ondragstart="formTools.dragstart(event);" ondragend="formTools.dragend(event);" data-value="<% JSON({ type => 'component', comp_name => 'Field', arguments => { name => $item->{Name}, id => $item->{Id} } }) %>">
           <p class="formtools-element-placeholder m-1 p-2 border rounded"><% loc('Place here') %></p>
           <p class="m-1 p-2 border rounded">
             <span class="badge badge-primary align-text-bottom"><% loc('Custom Field') %></span>
-            <span class="content"><% $item %> <span class="label"></span></span>
+            <span class="content"><% $item->{Name} %> <span class="label"></span></span>
             <a href="#" class="edit" data-toggle="modal" data-target="#formtools-element-modal">
               <span class="fas fa-pencil-alt" alt="<% loc('Edit') %>" data-toggle="tooltip" data-placement="top" data-original-title="<% loc('Edit') %>"></span>
             </a>
@@ -164,7 +164,7 @@
             </a>
           </p>
         </div>
-        <div class="modal fade formtools-element-modal" id="formtools-element-<% CSSClass($item) %>-modal" data-type="component" data-name="<% $item %>" tabindex="-1" role="dialog">
+        <div class="modal fade formtools-element-modal" id="formtools-element-<% CSSClass($item->{Name}) %>-modal" data-type="component" data-name="<% $item->{Name} %>" tabindex="-1" role="dialog">
           <div class="modal-dialog <% %dependent_custom_fields ? 'modal-lg' : '' %>" role="document">
             <div class="modal-content">
               <form class="formtools-element-form">
@@ -176,27 +176,27 @@
                 </div>
                 <div class="modal-body">
                   <&| /Elements/LabeledValue, Label => loc('Label') &>
-                    <input name="label" type="text" class="form-control" placeholder="<% $item %>" value="" />
+                    <input name="label" type="text" class="form-control" placeholder="<% $item->{Name} %>" value="" />
                   </&>
 
-%               if ( $cf_obj{$item}->SupportDefaultValues ) {
+%               if ( $cf_obj{$item->{Id}}->SupportDefaultValues ) {
                   <&| /Elements/LabeledValue, Label => loc('Default Value') &>
-%                 if ( $cf_obj{$item}->Type eq 'HTML' ) {
-                    <textarea name="default" type="text" rows="5" class="form-control" placeholder="<% $default_values{$item} %>"></textarea>
+%                 if ( $cf_obj{$item->{Id}}->Type eq 'HTML' ) {
+                    <textarea name="default" type="text" rows="5" class="form-control" placeholder="<% $default_values{$item->{Id}} %>"></textarea>
 %                 } else {
-                    <& /Elements/EditCustomField, NamePrefix => 'template-' . GetCustomFieldInputName(Object => $queue, CustomField => $cf_obj{$item}), Object => $queue, CustomField => $cf_obj{$item}, Default => $default_values{$item} &>
+                    <& /Elements/EditCustomField, NamePrefix => 'template-' . GetCustomFieldInputName(Object => $queue, CustomField => $cf_obj{$item->{Id}}), Object => $queue, CustomField => $cf_obj{$item->{Id}}, Default => $default_values{$item->{Id}} &>
 
 %                 }
                   </&>
 %               }
 
                   <&| /Elements/LabeledValue, Label => loc('Tooltip') &>
-                    <input name="tooltip" type="text" class="form-control" placeholder="<% $tooltips{$item} // '' %>" value="" />
+                    <input name="tooltip" type="text" class="form-control" placeholder="<% $tooltips{$item->{Id}} // '' %>" value="" />
                   </&>
                   <&| /Elements/LabeledValue, Label => '' &>
                     <div class="custom-control custom-checkbox">
-                      <input class="custom-control-input" id="<% CSSClass($item) %>-validation" type="checkbox" name="validation" value="1" />
-                      <label class="custom-control-label" for="<% CSSClass($item) %>-validation">
+                      <input class="custom-control-input" id="<% CSSClass($item->{Name}) %>-validation" type="checkbox" name="validation" value="1" />
+                      <label class="custom-control-label" for="<% CSSClass($item->{Name}) %>-validation">
                         <&|/l&>Require</&>
                       </label>
                     </div>
@@ -204,8 +204,8 @@
 %                 if ( %dependent_custom_fields ) {
                   <&| /Elements/LabeledValue, Label => '' &>
                     <div class="custom-control custom-checkbox">
-                      <input class="custom-control-input" id="<% CSSClass($item) %>-depedent-validation" type="checkbox" name="dependent_validation" value="1" />
-                      <label class="custom-control-label has-text-input" for="<% CSSClass($item) %>-depedent-validation">
+                      <input class="custom-control-input" id="<% CSSClass($item->{Name}) %>-depedent-validation" type="checkbox" name="dependent_validation" value="1" />
+                      <label class="custom-control-label has-text-input" for="<% CSSClass($item->{Name}) %>-depedent-validation">
                         <&|/l&>Require if</&>
                         <div class="d-inline-block">
                           <select name="dependent_name" class="form-control">
@@ -234,16 +234,16 @@
 %                 }
                   <&| /Elements/LabeledValue, Label => '' &>
                     <div class="custom-control custom-checkbox">
-                      <input class="custom-control-input" id="<% CSSClass($item) %>-hide" type="checkbox" name="hide" value="1" />
-                      <label class="custom-control-label" for="<% CSSClass($item) %>-hide">
+                      <input class="custom-control-input" id="<% CSSClass($item->{Name}) %>-hide" type="checkbox" name="hide" value="1" />
+                      <label class="custom-control-label" for="<% CSSClass($item->{Name}) %>-hide">
                         <&|/l&>Hide</&>
                       </label>
                     </div>
                   </&>
                   <&| /Elements/LabeledValue, Label => '' &>
                     <div class="custom-control custom-checkbox">
-                      <input class="custom-control-input" id="<% CSSClass($item) %>-readonly" type="checkbox" name="readonly" value="1" />
-                      <label class="custom-control-label" for="<% CSSClass($item) %>-readonly">
+                      <input class="custom-control-input" id="<% CSSClass($item->{Name}) %>-readonly" type="checkbox" name="readonly" value="1" />
+                      <label class="custom-control-label" for="<% CSSClass($item->{Name}) %>-readonly">
                         <&|/l&>Readonly</&>
                       </label>
                     </div>
@@ -748,17 +748,17 @@ my %dependent_custom_fields;
 my %cf_obj;
 
 while ( my $cf = $cfs->Next ) {
-    push @custom_fields, $cf->Name;
-    $cf_obj{$cf->Name} = $cf;
+    push @custom_fields, { Name => $cf->Name, Id => $cf->Id };
+    $cf_obj{$cf->Id} = $cf;
     if ( $cf->SupportDefaultValues ) {
         if ( defined( my $default_values = $cf->DefaultValues(Object => $queue) ) ) {
-            $default_values{$cf->Name} = $default_values;
+            $default_values{$cf->Id} = $default_values;
         }
     }
-    $tooltips{$cf->Name} = $cf->EntryHint // '';
+    $tooltips{$cf->Id} = $cf->EntryHint // '';
 
     if ( $cf->Type eq 'Select' ) {
-        $dependent_custom_fields{$cf->Name} = [ map { $_->Name } @{$cf->Values->ItemsArrayRef || {}} ];
+        $dependent_custom_fields{$cf->Id} = [ map { $_->Name } @{$cf->Values->ItemsArrayRef || {}} ];
     }
 }
 
